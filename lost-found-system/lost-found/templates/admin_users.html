@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Manage Users{% endblock %}
+{% block content %}
+<div class="page-header admin-header">
+    <div class="container">
+        <h1>Manage Users</h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="table-wrap">
+    <table class="data-table">
+        <thead>
+            <tr><th>#</th><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.user_id }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td><span class="badge badge-{{ user.role }}">{{ user.role.title() }}</span></td>
+            <td>{{ user.created_at.strftime('%b %d, %Y') }}</td>
+            <td><span class="badge {% if user.is_active %}badge-verified{% else %}badge-closed{% endif %}">
+                {{ 'Active' if user.is_active else 'Disabled' }}</span></td>
+            <td>
+                {% if user.role != 'admin' %}
+                <form method="POST" action="{{ url_for('toggle_user', user_id=user.user_id) }}">
+                    <button class="btn btn-sm {% if user.is_active %}btn-danger{% else %}btn-success{% endif %}">
+                        {{ 'Disable' if user.is_active else 'Enable' }}
+                    </button>
+                </form>
+                {% else %}
+                <span class="text-muted">—</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Manage Claims{% endblock %}
+{% block content %}
+<div class="page-header admin-header">
+    <div class="container">
+        <h1>Manage Claims</h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="filter-group" style="margin-bottom:1.5rem">
+        {% for s in ['', 'pending', 'approved', 'rejected'] %}
+        <a href="{{ url_for('admin_claims', status=s) }}"
+           class="filter-pill {% if sel_status == s %}active{% endif %}">
+           {{ s.title() if s else 'All' }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <div class="table-wrap">
+    <table class="data-table">
+        <thead>
+            <tr><th>#</th><th>Claimant</th><th>Item</th><th>Type</th><th>Message</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+        {% for row in enriched %}
+        {% set claim = row.claim %}
+        {% set item = row.item %}
+        <tr>
+            <td>{{ claim.claim_id }}</td>
+            <td>{{ claim.user.name }}</td>
+            <td>{{ item.title if item else 'Deleted Item' }}</td>
+            <td><span class="badge badge-{{ claim.item_type }}">{{ claim.item_type.title() }}</span></td>
+            <td class="msg-cell">{{ claim.message[:80] if claim.message else '—' }}{% if claim.message and claim.message|length > 80 %}…{% endif %}</td>
+            <td><span class="badge badge-{{ claim.status }}">{{ claim.status.title() }}</span></td>
+            <td>{{ claim.created_at.strftime('%b %d, %Y') }}</td>
+            <td>
+                {% if claim.status == 'pending' %}
+                <div class="action-group">
+                    <form method="POST" action="{{ url_for('admin_claim_action', claim_id=claim.claim_id, action='approve') }}" style="display:inline">
+                        <button class="btn btn-sm btn-success">Approve</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin_claim_action', claim_id=claim.claim_id, action='reject') }}" style="display:inline">
+                        <button class="btn btn-sm btn-danger">Reject</button>
+                    </form>
+                </div>
+                {% else %}
+                <span class="text-muted">—</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="empty-td">No claims found.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock %}

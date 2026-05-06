@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+        <div class="hero-badge">Lost something? Found something?</div>
+        <h1 class="hero-title">Reconnecting<br><span class="accent">People</span> with<br>Their Belongings</h1>
+        <p class="hero-subtitle">TrackIt makes it effortless to report lost items, register found ones, and reunite people with what matters.</p>
+        <div class="hero-actions">
+            <a href="{{ url_for('report_lost') }}" class="btn btn-primary">Report Lost Item</a>
+            <a href="{{ url_for('report_found') }}" class="btn btn-outline">Report Found Item</a>
+        </div>
+    </div>
+    <div class="hero-stats">
+        <div class="stat-card">
+            <span class="stat-num">{{ total_lost }}</span>
+            <span class="stat-label">Lost Reports</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-num">{{ total_found }}</span>
+            <span class="stat-label">Found Reports</span>
+        </div>
+        <div class="stat-card accent-card">
+            <span class="stat-num">{{ recovered }}</span>
+            <span class="stat-label">Items Recovered</span>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Recently Lost</h2>
+            <a href="{{ url_for('search', type='lost') }}" class="link-more">View all →</a>
+        </div>
+        <div class="items-grid">
+            {% for item in recent_lost %}
+            <div class="item-card lost-card">
+                {% if item.image_path %}
+                <div class="card-img">
+                    <img src="{{ url_for('uploaded_file', filename=item.image_path) }}" alt="{{ item.title }}">
+                </div>
+                {% else %}
+                <div class="card-img card-img-placeholder">
+                    <span>📦</span>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <span class="badge badge-lost">Lost</span>
+                    <span class="badge badge-{{ item.status }}">{{ item.status.title() }}</span>
+                    <h3>{{ item.title }}</h3>
+                    <p class="card-meta">📍 {{ item.location }}</p>
+                    <p class="card-meta">📅 {{ item.date_lost.strftime('%b %d, %Y') }}</p>
+                    <p class="card-desc">{{ item.description[:100] }}{% if item.description|length > 100 %}…{% endif %}</p>
+                    {% if session.user_id %}
+                    <a href="{{ url_for('claim_item', itype='lost', item_id=item.item_id) }}" class="btn btn-sm btn-primary">Claim This</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <p class="empty-msg">No lost items reported yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-header">
+            <h2>Recently Found</h2>
+            <a href="{{ url_for('search', type='found') }}" class="link-more">View all →</a>
+        </div>
+        <div class="items-grid">
+            {% for item in recent_found %}
+            <div class="item-card found-card">
+                {% if item.image_path %}
+                <div class="card-img">
+                    <img src="{{ url_for('uploaded_file', filename=item.image_path) }}" alt="{{ item.title }}">
+                </div>
+                {% else %}
+                <div class="card-img card-img-placeholder">
+                    <span>🔍</span>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <span class="badge badge-found">Found</span>
+                    <span class="badge badge-{{ item.status }}">{{ item.status.title() }}</span>
+                    <h3>{{ item.title }}</h3>
+                    <p class="card-meta">📍 {{ item.location }}</p>
+                    <p class="card-meta">📅 {{ item.date_found.strftime('%b %d, %Y') }}</p>
+                    <p class="card-desc">{{ item.description[:100] }}{% if item.description|length > 100 %}…{% endif %}</p>
+                    {% if session.user_id %}
+                    <a href="{{ url_for('claim_item', itype='found', item_id=item.item_id) }}" class="btn btn-sm btn-primary">This is Mine</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <p class="empty-msg">No found items reported yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="how-it-works">
+    <div class="container">
+        <h2 class="text-center">How It Works</h2>
+        <div class="steps-grid">
+            <div class="step"><span class="step-num">01</span><h3>Report</h3><p>Submit details about a lost or found item with photos and location.</p></div>
+            <div class="step"><span class="step-num">02</span><h3>Search</h3><p>Browse the database using filters for category, location, and keywords.</p></div>
+            <div class="step"><span class="step-num">03</span><h3>Claim</h3><p>Submit a claim with proof of ownership for admin review.</p></div>
+            <div class="step"><span class="step-num">04</span><h3>Recover</h3><p>Once approved, coordinate return of the item with the finder.</p></div>
+        </div>
+    </div>
+</section>
+{% endblock %}

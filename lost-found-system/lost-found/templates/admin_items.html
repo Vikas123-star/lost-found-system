@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Manage Items{% endblock %}
+{% block content %}
+<div class="page-header admin-header">
+    <div class="container">
+        <h1>Manage {{ itype.title() }} Items</h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="admin-toolbar">
+        <div class="tab-group">
+            <a href="{{ url_for('admin_items', type='lost') }}" class="tab-btn {% if itype=='lost' %}active{% endif %}">Lost Items</a>
+            <a href="{{ url_for('admin_items', type='found') }}" class="tab-btn {% if itype=='found' %}active{% endif %}">Found Items</a>
+        </div>
+        <div class="filter-group">
+            <label>Filter by status:</label>
+            {% for s in ['', 'reported', 'verified', 'claimed', 'closed'] %}
+            <a href="{{ url_for('admin_items', type=itype, status=s) }}"
+               class="filter-pill {% if sel_status == s %}active{% endif %}">
+               {{ s.title() if s else 'All' }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="table-wrap">
+    <table class="data-table">
+        <thead>
+            <tr><th>#</th><th>Title</th><th>Reported By</th><th>Location</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.item_id }}</td>
+            <td>
+                <strong>{{ item.title }}</strong><br>
+                <small class="text-muted">{{ item.category.name }}</small>
+            </td>
+            <td>{{ item.user.name }}</td>
+            <td>{{ item.location }}</td>
+            <td>{{ (item.date_lost if itype=='lost' else item.date_found).strftime('%b %d, %Y') }}</td>
+            <td><span class="badge badge-{{ item.status }}">{{ item.status.title() }}</span></td>
+            <td>
+                <div class="action-group">
+                {% if item.status == 'reported' %}
+                <form method="POST" action="{{ url_for('admin_verify', itype=itype, item_id=item.item_id) }}" style="display:inline">
+                    <button type="submit" class="btn btn-sm btn-success">Verify</button>
+                </form>
+                {% endif %}
+                <form method="POST" action="{{ url_for('admin_update_status', itype=itype, item_id=item.item_id) }}" style="display:inline">
+                    <select name="status" onchange="this.form.submit()" class="status-select">
+                        {% for s in ['reported', 'verified', 'claimed', 'closed'] %}
+                        <option value="{{ s }}" {% if item.status == s %}selected{% endif %}>{{ s.title() }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+                </div>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="empty-td">No items found.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock %}

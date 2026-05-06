@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>My Dashboard</h1>
+        <p>Welcome back, <strong>{{ session.name }}</strong></p>
+    </div>
+</div>
+
+<div class="container dashboard-grid">
+    <div class="dash-stat-row">
+        <div class="dash-stat"><span class="ds-num">{{ my_lost|length }}</span><span class="ds-label">Lost Reports</span></div>
+        <div class="dash-stat"><span class="ds-num">{{ my_found|length }}</span><span class="ds-label">Found Reports</span></div>
+        <div class="dash-stat"><span class="ds-num">{{ my_claims|length }}</span><span class="ds-label">My Claims</span></div>
+        <div class="dash-stat accent"><span class="ds-num">{{ my_claims|selectattr('status', 'equalto', 'approved')|list|length }}</span><span class="ds-label">Approved</span></div>
+    </div>
+
+    <div class="dash-actions">
+        <a href="{{ url_for('report_lost') }}" class="action-btn lost-btn">+ Report Lost Item</a>
+        <a href="{{ url_for('report_found') }}" class="action-btn found-btn">+ Report Found Item</a>
+        <a href="{{ url_for('search') }}" class="action-btn search-btn">🔍 Search Items</a>
+    </div>
+
+    <!-- My Lost Items -->
+    <section class="dash-section">
+        <h2>My Lost Reports</h2>
+        {% if my_lost %}
+        <div class="table-wrap">
+        <table class="data-table">
+            <thead><tr><th>Title</th><th>Category</th><th>Location</th><th>Date</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for item in my_lost %}
+            <tr>
+                <td><strong>{{ item.title }}</strong></td>
+                <td>{{ item.category.name }}</td>
+                <td>{{ item.location }}</td>
+                <td>{{ item.date_lost.strftime('%b %d, %Y') }}</td>
+                <td><span class="badge badge-{{ item.status }}">{{ item.status.title() }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No lost items reported yet.</p>
+            <a href="{{ url_for('report_lost') }}" class="btn btn-primary">Report a Lost Item</a>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- My Found Items -->
+    <section class="dash-section">
+        <h2>My Found Reports</h2>
+        {% if my_found %}
+        <div class="table-wrap">
+        <table class="data-table">
+            <thead><tr><th>Title</th><th>Category</th><th>Location</th><th>Date</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for item in my_found %}
+            <tr>
+                <td><strong>{{ item.title }}</strong></td>
+                <td>{{ item.category.name }}</td>
+                <td>{{ item.location }}</td>
+                <td>{{ item.date_found.strftime('%b %d, %Y') }}</td>
+                <td><span class="badge badge-{{ item.status }}">{{ item.status.title() }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% else %}
+        <div class="empty-state"><p>No found items reported yet.</p></div>
+        {% endif %}
+    </section>
+
+    <!-- My Claims -->
+    <section class="dash-section">
+        <h2>My Claims</h2>
+        {% if my_claims %}
+        <div class="table-wrap">
+        <table class="data-table">
+            <thead><tr><th>Item Type</th><th>Item ID</th><th>Message</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+            {% for claim in my_claims %}
+            <tr>
+                <td><span class="badge badge-{{ claim.item_type }}">{{ claim.item_type.title() }}</span></td>
+                <td>#{{ claim.item_id }}</td>
+                <td>{{ claim.message[:60] if claim.message else '—' }}{% if claim.message and claim.message|length > 60 %}…{% endif %}</td>
+                <td><span class="badge badge-{{ claim.status }}">{{ claim.status.title() }}</span></td>
+                <td>{{ claim.created_at.strftime('%b %d, %Y') }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% else %}
+        <div class="empty-state"><p>No claims submitted yet.</p></div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

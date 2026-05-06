@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Claim Item{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Claim Item</h2>
+
+    <div class="card">
+        <h3>{{ item.title }}</h3>
+        <p><strong>Category:</strong> {{ item.category.name }}</p>
+        <p><strong>Location:</strong> {{ item.location }}</p>
+
+        {% if item_type == 'lost' %}
+            <p><strong>Date Lost:</strong> {{ item.date_lost }}</p>
+        {% else %}
+            <p><strong>Date Found:</strong> {{ item.date_found }}</p>
+        {% endif %}
+    </div>
+
+    <form method="POST">
+        <div class="form-group">
+            <label>Your Message</label>
+            <textarea name="message" required placeholder="Explain why this item is yours..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit Claim</button>
+    </form>
+</div>
+{% endblock %}

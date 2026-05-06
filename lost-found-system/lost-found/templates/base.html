@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% block title %}Lost & Found{% endblock %} — TrackIt
+    </title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar">
+    <a href="{{ url_for('index') }}" class="nav-brand">
+        <span class="brand-icon">◈</span> TrackIt
+    </a>
+
+    <div class="nav-links">
+        <a href="{{ url_for('search') }}" class="nav-link">Search</a>
+
+        {% if session.user_id %}
+            {% if session.role == 'admin' %}
+                <a href="{{ url_for('admin_dashboard') }}" class="nav-link">Admin</a>
+            {% else %}
+                <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+                <a href="{{ url_for('report_lost') }}" class="nav-link">Report Lost</a>
+                <a href="{{ url_for('report_found') }}" class="nav-link">Report Found</a>
+            {% endif %}
+
+            <a href="{{ url_for('logout') }}" class="nav-link btn-outline">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="nav-link">Login</a>
+            <a href="{{ url_for('register') }}" class="nav-link btn-primary">Register</a>
+        {% endif %}
+    </div>
+
+    <button class="nav-toggle" onclick="toggleNav()">☰</button>
+</nav>
+
+<!-- ================= MOBILE MENU ================= -->
+<div class="mobile-menu" id="mobileMenu">
+    <a href="{{ url_for('search') }}">Search</a>
+
+    {% if session.user_id %}
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('report_lost') }}">Report Lost</a>
+        <a href="{{ url_for('report_found') }}">Report Found</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Register</a>
+    {% endif %}
+</div>
+
+<!-- ================= FLASH MESSAGES ================= -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flash-container">
+            {% for cat, msg in messages %}
+                <div class="flash flash-{{ cat }}">
+                    {{ msg }}
+                    <button onclick="this.parentElement.remove()">×</button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<!-- ================= MAIN CONTENT ================= -->
+<main class="main-content">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+    <p>© 2024 TrackIt — Lost & Found Management System</p>
+</footer>
+
+<!-- ================= JS ================= -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block extra_css %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header admin-header">
+    <div class="container">
+        <h1>⚙ Admin Dashboard</h1>
+        <p>System overview and management</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="admin-stat-grid">
+        <div class="admin-stat blue"><span class="as-num">{{ total_users }}</span><span class="as-label">Total Users</span></div>
+        <div class="admin-stat orange"><span class="as-num">{{ total_lost }}</span><span class="as-label">Lost Reports</span></div>
+        <div class="admin-stat green"><span class="as-num">{{ total_found }}</span><span class="as-label">Found Reports</span></div>
+        <div class="admin-stat red"><span class="as-num">{{ pending_claims }}</span><span class="as-label">Pending Claims</span></div>
+    </div>
+
+    <div class="admin-two-col">
+        <div class="admin-panel">
+            <h2>Item Status Distribution</h2>
+            <canvas id="statusChart" height="220"></canvas>
+        </div>
+
+        <div class="admin-panel">
+            <h2>Quick Actions</h2>
+            <div class="quick-actions">
+                <a href="{{ url_for('admin_items', type='lost') }}" class="qa-btn">📋 Manage Lost Items</a>
+                <a href="{{ url_for('admin_items', type='found') }}" class="qa-btn">📋 Manage Found Items</a>
+                <a href="{{ url_for('admin_claims') }}" class="qa-btn">🔖 Manage Claims</a>
+                <a href="{{ url_for('admin_users') }}" class="qa-btn">👥 Manage Users</a>
+                <a href="{{ url_for('admin_claims', status='pending') }}" class="qa-btn highlight">
+                    ⚠ {{ pending_claims }} Pending Claims
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-panel">
+        <h2>Recent Admin Activity</h2>
+        {% if recent_logs %}
+        <div class="table-wrap">
+        <table class="data-table">
+            <thead><tr><th>Action</th><th>Target</th><th>Details</th><th>Time</th></tr></thead>
+            <tbody>
+            {% for log in recent_logs %}
+            <tr>
+                <td>{{ log.action.replace('_', ' ').title() }}</td>
+                <td>{{ log.target_type or '—' }} {% if log.target_id %}#{{ log.target_id }}{% endif %}</td>
+                <td>{{ log.details or '—' }}</td>
+                <td>{{ log.created_at.strftime('%b %d, %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% else %}
+        <p class="empty-msg">No activity logged yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const statusData = {{ status_data|safe }};
+const ctx = document.getElementById('statusChart').getContext('2d');
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: Object.keys(statusData).map(k => k.charAt(0).toUpperCase() + k.slice(1)),
+        datasets: [{
+            data: Object.values(statusData),
+            backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#6b7280'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'bottom', labels: { color: '#cbd5e1', padding: 16, font: { size: 13 } } }
+        }
+    }
+});
+</script>
+{% endblock %}

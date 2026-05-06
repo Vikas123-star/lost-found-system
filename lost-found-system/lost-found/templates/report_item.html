@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Report {{ item_type.title() }} Item{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Report {{ item_type.title() }} Item</h1>
+        <p>Fill in the details below to help others identify the item</p>
+    </div>
+</div>
+
+<div class="container form-page">
+    <form method="POST" enctype="multipart/form-data" class="report-form">
+        <div class="form-grid">
+            <div class="form-group span-full">
+                <label>Item Title <span class="req">*</span></label>
+                <input type="text" name="title" placeholder="e.g. Black iPhone 14 with blue case" required>
+            </div>
+
+            <div class="form-group">
+                <label>Category <span class="req">*</span></label>
+                <select name="cat_id" required>
+                    <option value="">Select a category…</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.cat_id }}">{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    {% if item_type == 'lost' %}Date Lost{% else %}Date Found{% endif %} <span class="req">*</span>
+                </label>
+                <input type="date" name="{{ 'date_lost' if item_type == 'lost' else 'date_found' }}"
+                       max="{{ today }}" required>
+            </div>
+
+            <div class="form-group span-full">
+                <label>Location <span class="req">*</span></label>
+                <input type="text" name="location" placeholder="e.g. Central Park, near the fountain" required>
+            </div>
+
+            <div class="form-group span-full">
+                <label>Description <span class="req">*</span></label>
+                <textarea name="description" rows="5"
+                    placeholder="Describe the item in detail: color, brand, distinguishing marks, contents…" required></textarea>
+            </div>
+
+            <div class="form-group span-full">
+                <label>Photo (optional)</label>
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" name="image" id="imageInput" accept="image/*"
+                           onchange="previewImage(this)">
+                    <div class="upload-placeholder" id="uploadPlaceholder">
+                        <span class="upload-icon">📷</span>
+                        <p>Click or drag image here</p>
+                        <p class="upload-hint">PNG, JPG, GIF up to 16MB</p>
+                    </div>
+                    <img id="imagePreview" src="" alt="Preview" style="display:none">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+                Submit Report
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImage(input) {
+    const preview = document.getElementById('imagePreview');
+    const placeholder = document.getElementById('uploadPlaceholder');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Set max date to today
+document.querySelectorAll('input[type="date"]').forEach(el => {
+    el.max = new Date().toISOString().split('T')[0];
+});
+
+// Drag & drop
+const area = document.getElementById('uploadArea');
+area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('drag-over'); });
+area.addEventListener('dragleave', () => area.classList.remove('drag-over'));
+area.addEventListener('drop', e => {
+    e.preventDefault();
+    area.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) {
+        document.getElementById('imageInput').files = e.dataTransfer.files;
+        previewImage(document.getElementById('imageInput'));
+    }
+});
+</script>
+{% endblock %}

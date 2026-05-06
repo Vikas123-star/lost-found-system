@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Search Items{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Search Items</h1>
+        <p>Find lost or found items in the system</p>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- 🔍 SEARCH FORM -->
+    <form method="GET" action="{{ url_for('search') }}" class="search-form">
+
+        <div class="search-row">
+            <input type="text" name="q" placeholder="Search by title..." value="{{ request.args.get('q', '') }}">
+
+            <select name="category">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.cat_id }}">{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="text" name="location" placeholder="Location..." value="{{ request.args.get('location', '') }}">
+
+            <select name="type">
+                <option value="">Lost & Found</option>
+                <option value="lost">Lost</option>
+                <option value="found">Found</option>
+            </select>
+
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+
+    <!-- 🔎 LOST ITEMS -->
+    <section class="dash-section">
+        <h2>Lost Items</h2>
+
+        {% if lost_items %}
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Location</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in lost_items %}
+                    <tr>
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.category.name }}</td>
+                        <td>{{ item.location }}</td>
+                        <td>{{ item.date_lost.strftime('%b %d, %Y') }}</td>
+                        <td>
+                            <a href="{{ url_for('claim_item', item_type='lost', item_id=item.item_id) }}" 
+                               class="btn btn-primary">
+                                Claim
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <p>No lost items found.</p>
+        {% endif %}
+    </section>
+
+    <!-- 🔎 FOUND ITEMS -->
+    <section class="dash-section">
+        <h2>Found Items</h2>
+
+        {% if found_items %}
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Location</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in found_items %}
+                    <tr>
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.category.name }}</td>
+                        <td>{{ item.location }}</td>
+                        <td>{{ item.date_found.strftime('%b %d, %Y') }}</td>
+                        <td>
+                            <a href="{{ url_for('claim_item', item_type='found', item_id=item.item_id) }}" 
+                               class="btn btn-primary">
+                                Claim
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <p>No found items found.</p>
+        {% endif %}
+    </section>
+
+</div>
+{% endblock %}

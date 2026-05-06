@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Login
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+
+        <!-- Header -->
+        <div class="auth-header">
+            <span class="brand-icon large">◈</span>
+            <h1>Welcome Back</h1>
+            <p>Sign in to your TrackIt account</p>
+        </div>
+
+        <!-- Login Form -->
+        <form method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email"
+                    name="email" 
+                    placeholder="you@example.com" 
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password"
+                    name="password" 
+                    placeholder="••••••••" 
+                    required
+                >
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">
+                Sign In
+            </button>
+        </form>
+
+        <!-- Footer -->
+        <p class="auth-footer">
+            Don't have an account?
+            <a href="{{ url_for('register') }}">Register here</a>
+        </p>
+
+        <!-- Demo Credentials -->
+        <div class="demo-creds">
+            <p>
+                <strong>Demo Admin:</strong> 
+                admin@lostfound.com / admin123
+            </p>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
